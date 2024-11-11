@@ -22,7 +22,7 @@ def resources(request):
     resources_data = {
         # Example resources
         'articles': [
-            {'title': 'Django Official Documentation',
+            {'title': 'Django OfficialDocumentation',
                 'link': 'https://docs.djangoproject.com/en/stable/'},
             {'title': 'Django REST Framework',
                 'link': 'https://www.django-rest-framework.org/'},
@@ -129,19 +129,24 @@ def solve_quiz(request, quiz_id):
         'answers': answers
     })
 
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('dashboard')  # Redirect to your dashboard or home page
+            # Redirect to your dashboard or home page
+            return redirect('dashboard')
     else:
         form = AuthenticationForm()
     return render(request, 'user/login.html', {'form': form})
+
+
 def logout_view(request):
     logout(request)
     return redirect('login')
+
 
 def register_view(request):
     if request.method == 'POST':
