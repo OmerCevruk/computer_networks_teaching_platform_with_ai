@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Computer Networks Using AI{% endblock %}</title>
-
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -20,6 +19,15 @@
     <a href="{% url 'quizzes' %}" class="nav-link">Quizzes</a>
     <a href="{% url 'progress' %}" class="nav-link">Progress</a>
     <a href="{% url 'resources' %}" class="nav-link">Resources</a>
+
+    {% if user.is_authenticated %}
+        <!-- Show 'Logout' link if the user is logged in -->
+        <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+    {% else %}
+        <!-- Show 'Login' and 'Register' links if the user is not logged in -->
+        <a href="{% url 'login' %}" class="nav-link">Login</a>
+        <a href="{% url 'register' %}" class="nav-link">Register</a>
+    {% endif %}
 </nav>
 
 <!-- Content Block -->

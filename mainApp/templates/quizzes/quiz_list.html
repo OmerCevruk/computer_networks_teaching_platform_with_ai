@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="border: 1px solid #ccc; padding: 16px; margin: 16px; border-radius: 8px;">
+    <h1>Available Quizzes</h1>
+    
+    <div>
+        {% for quiz in quizzes %}
+        <div style="border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+            <h2>{{ quiz.name }}</h2>
+            <p>Difficulty: {{ quiz.hardness }}/10</p>
+            <p>Questions: {{ quiz.total_questions }}</p>
+            
+            <div>
+                <!-- Completion bar -->
+                <div style="background-color: #e2e8f0; border-radius: 4px; height: 16px;">
+                    <div style="background-color: #3b82f6; height: 16px; border-radius: 4px; width: {{ quiz.completion }}%;"></div>
+                </div>
+                <p>Completion: {{ quiz.completion|floatformat:1 }}%</p>
+                <p>Score: {{ quiz.score|floatformat:1 }}%</p>
+            </div>
+            
+            <a href="{% url 'solve_quiz' quiz.id %}">
+                {% if quiz.completion == 100 %}
+                    Retake Quiz
+                {% else %}
+                    {% if quiz.completion > 0 %}
+                        Continue Quiz
+                    {% else %}
+                        Start Quiz
+                    {% endif %}
+                {% endif %}
+            </a>
+        </div>
+        {% empty %}
+        <p>No quizzes available.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

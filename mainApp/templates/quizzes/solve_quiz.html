@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <h1 class="text-2xl mb-6">{{ quiz.name }}</h1>
+    
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl mb-4">Question {{ question.question_number }}</h2>
+        <p class="mb-6">{{ question.question_text }}</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {% for answer in answers %}
+                <div class="flex items-center">
+                    <input type="radio" name="answer" value="{{ answer.id }}" 
+                           id="answer_{{ answer.id }}" class="mr-2" required>
+                    <label for="answer_{{ answer.id }}">{{ answer.answer_text }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" 
+                    class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Submit Answer
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
