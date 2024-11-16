@@ -20,17 +20,25 @@
                 <p>Score: {{ quiz.score|floatformat:1 }}%</p>
             </div>
             
-            <a href="{% url 'solve_quiz' quiz.id %}">
-                {% if quiz.completion == 100 %}
-                    Retake Quiz
-                {% else %}
-                    {% if quiz.completion > 0 %}
-                        Continue Quiz
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <a href="{% url 'solve_quiz' quiz.id %}" style="padding: 8px 16px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 4px;">
+                    {% if quiz.completion == 100 %}
+                        Retake Quiz
                     {% else %}
-                        Start Quiz
+                        {% if quiz.completion > 0 %}
+                            Continue Quiz
+                        {% else %}
+                            Start Quiz
+                        {% endif %}
                     {% endif %}
+                </a>
+                
+                {% if quiz.completion > 0 %}
+                <a href="{% url 'quiz_chat' quiz.id %}" style="padding: 8px 16px; background-color: #10b981; color: white; text-decoration: none; border-radius: 4px;">
+                    Discuss with AI
+                </a>
                 {% endif %}
-            </a>
+            </div>
         </div>
         {% empty %}
         <p>No quizzes available.</p>

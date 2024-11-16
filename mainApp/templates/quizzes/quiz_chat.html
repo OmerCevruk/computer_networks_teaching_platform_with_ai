@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="padding: 32px;">
+    <h1 style="color: #35A7A5; font-size: 24px; margin-bottom: 24px;">{{ quiz.name }}</h1>
+    
+    <!-- Main container with split view -->
+    <div style="display: flex; gap: 24px; height: calc(100vh - 150px);">
+        <!-- Left side: Questions Review -->
+        <div style="flex: 0 0 40%; background-color: #172044; border-radius: 8px; padding: 16px; overflow-y: auto;">
+            <h2 style="color: #35A7A5; margin-bottom: 16px;">Questions Review</h2>
+            
+            {% for answer in user_answers %}
+            <div style="margin-bottom: 24px; padding: 16px; border-radius: 8px; background-color: #0E1428; border: 1px solid #247BA0;">
+                <div style="margin-bottom: 8px;">
+                    <strong style="display: block; margin-bottom: 8px; color: #35A7A5;">Question {{ answer.question_number }}:</strong>
+                    <p style="margin-bottom: 12px; color: #247BA0;">{{ answer.question_text }}</p>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    <span style="color: #35A7A5; font-size: 0.9em;">Your Answer:</span>
+                    <p style="padding: 8px; background-color: #172044; border-radius: 4px; margin-top: 4px; color: #247BA0;">
+                        {{ answer.selected_answer }}
+                    </p>
+                </div>
+
+                <div>
+                    <span style="color: #35A7A5; font-size: 0.9em;">Correct Answer:</span>
+                    <p style="padding: 8px; background-color: #172044; border-radius: 4px; margin-top: 4px; color: #247BA0;">
+                        {{ answer.correct_answer }}
+                    </p>
+                </div>
+
+                <div style="margin-top: 8px;">
+                    <span style="color: {% if answer.is_correct %}#35A7A5{% else %}#ff6b6b{% endif %};">
+                        {% if answer.is_correct %}✓ Correct{% else %}✗ Incorrect{% endif %}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <p style="color: #247BA0;">No answers to review yet.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Right side: Chat Interface -->
+        <div style="flex: 0 0 60%; background-color: #172044; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;">
+            <h2 style="color: #35A7A5; margin-bottom: 16px;">Ask for Help</h2>
+            
+            <!-- Chat messages container -->
+            <div id="chat-messages" 
+                 style="flex-grow: 1; overflow-y: auto; margin-bottom: 16px; padding: 16px; 
+                        background-color: #0E1428; border-radius: 8px;">
+                {% for message in chat_messages %}
+                    <div style="margin-bottom: 16px; {% if message.is_user %}text-align: right;{% endif %}">
+                        <div style="display: inline-block; max-width: 80%; padding: 12px 16px; border-radius: 12px; 
+                            {% if message.is_user %}
+                                background-color: #35A7A5; color: #0E1428;
+                            {% else %}
+                                background-color: #172044; color: #247BA0; text-align: left;
+                            {% endif %}">
+                            {% if not message.is_user %}
+                                <div style="font-weight: bold; margin-bottom: 4px; color: #35A7A5;">AI Tutor:</div>
+                            {% endif %}
+                            {{ message.content|linebreaks }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Chat input form -->
+            <form method="POST" style="display: flex; gap: 10px;">
+                {% csrf_token %}
+                <input type="text" 
+                       name="message" 
+                       style="flex-grow: 1; padding: 12px; border: 2px solid #247BA0; 
+                              border-radius: 8px; font-size: 16px; background-color: #0E1428; 
+                              color: #247BA0;" 
+                       placeholder="Ask about your answers or request help understanding concepts..."
+                       required>
+                <button type="submit" 
+                        style="padding: 12px 24px; background-color: #35A7A5; color: #0E1428; 
+                               border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+</script>
+{% endblock %}

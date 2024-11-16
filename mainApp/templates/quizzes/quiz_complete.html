@@ -1,12 +1,52 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="container mx-auto mt-8 text-center">
-    <h1 class="text-2xl mb-4">Congratulations!</h1>
-    <p class="mb-6">You have completed the quiz: {{ quiz.name }}</p>
-    <a href="{% url 'quizzes' %}" 
-       class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Back to Quiz List
-    </a>
+<div style="width: 80%; margin: 32px auto; text-align: center;">
+    <h1 style="font-size: 24px; margin-bottom: 24px; color: #35A7A5;">Quiz Completed!</h1>
+    
+    <div style="background-color: #172044; border-radius: 8px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+        <h2 style="color: #247BA0; margin-bottom: 16px;">You've completed {{ quiz.name }}</h2>
+        
+        <div style="display: flex; gap: 16px; justify-content: center; margin-top: 24px;">
+            <a href="{% url 'solve_quiz' quiz.id %}?retake=true"
+               style="display: inline-block;
+                      background-color: #35A7A5;
+                      color: #0E1428;
+                      padding: 8px 16px;
+                      border-radius: 4px;
+                      text-decoration: none;
+                      font-weight: bold;">
+                Retake Quiz
+            </a>
+            
+            <a href="{% url 'quiz_chat' quiz.id %}"
+               style="display: inline-block;
+                      background-color: #4d61b0;
+                      color: #0E1428;
+                      padding: 8px 16px;
+                      border-radius: 4px;
+                      text-decoration: none;
+                      font-weight: bold;">
+                Discuss with AI
+            </a>
+            
+            <a href="{% url 'quizzes' %}"
+               style="display: inline-block;
+                      background-color: #247BA0;
+                      color: #0E1428;
+                      padding: 8px 16px;
+                      border-radius: 4px;
+                      text-decoration: none;
+                      font-weight: bold;">
+                Back to Quizzes
+            </a>
+        </div>
+    </div>
 </div>
+
+<style>
+    a:hover {
+        opacity: 0.9;
+        transition: opacity 0.2s;
+    }
+</style>
 {% endblock %}

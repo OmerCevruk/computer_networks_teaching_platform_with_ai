@@ -1,31 +1,74 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="container mx-auto mt-8">
-    <h1 class="text-2xl mb-6">{{ quiz.name }}</h1>
+<div style="width: 80%; margin: 32px auto;">
+    <h1 style="font-size: 24px; margin-bottom: 24px; color: #35A7A5;">{{ quiz.name }}</h1>
     
-    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 class="text-xl mb-4">Question {{ question.question_number }}</h2>
-        <p class="mb-6">{{ question.question_text }}</p>
+    {% if no_questions %}
+    <div style="background-color: #172044; border-radius: 8px; padding: 24px; text-align: center;">
+        <p style="color: #247BA0; margin-bottom: 16px;">No questions are available for this quiz.</p>
+        <a href="{% url 'quiz_list' %}" 
+           style="display: inline-block;
+                  background-color: #35A7A5;
+                  color: #0E1428;
+                  padding: 8px 16px;
+                  border-radius: 4px;
+                  text-decoration: none;
+                  font-weight: bold;">
+            Back to Quiz List
+        </a>
+    </div>
+    {% else %}
+    <div style="background-color: #172044; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border-radius: 8px; padding: 24px;">
+        <h2 style="font-size: 20px; margin-bottom: 16px; color: #35A7A5;">Question {{ question.question_number }}</h2>
+        <p style="margin-bottom: 24px; color: #247BA0;">{{ question.question_text }}</p>
         
         <form method="post">
             {% csrf_token %}
-            <div class="space-y-4">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
                 {% for answer in answers %}
-                <div class="flex items-center">
-                    <input type="radio" name="answer" value="{{ answer.id }}" 
-                           id="answer_{{ answer.id }}" class="mr-2" required>
-                    <label for="answer_{{ answer.id }}">{{ answer.answer_text }}</label>
+                <div style="display: flex; align-items: center;">
+                    <input type="radio" 
+                           name="answer" 
+                           value="{{ answer.number }}" 
+                           id="answer_{{ answer.number }}" 
+                           style="margin-right: 8px; accent-color: #35A7A5;"
+                           required>
+                    <label for="answer_{{ answer.number }}" 
+                           style="color: #247BA0; cursor: pointer;">{{ answer.text }}</label>
                 </div>
                 {% endfor %}
             </div>
             
             <button type="submit" 
-                    class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    style="margin-top: 24px; 
+                           background-color: #35A7A5; 
+                           color: #0E1428; 
+                           padding: 8px 16px; 
+                           border-radius: 4px;
+                           border: none;
+                           cursor: pointer;
+                           font-weight: bold;
+                           transition: background-color 0.2s;">
                 Submit Answer
             </button>
         </form>
     </div>
+    {% endif %}
 </div>
-{% endblock %}
 
+<style>
+    button[type="submit"]:hover {
+        background-color: #4d61b0;
+    }
+
+    input[type="radio"] + label:hover {
+        color: #35A7A5;
+        transition: color 0.2s;
+    }
+
+    a:hover {
+        opacity: 0.9;
+        transition: opacity 0.2s;
+    }
+</style>
+{% endblock %}

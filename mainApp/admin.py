@@ -1,13 +1,7 @@
 # admin.py
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Quiz, Question, Answer, UserQuestionStatus
-
-
-class AnswerInline(admin.TabularInline):
-    model = Answer
-    extra = 4
-    fields = ['answer_text']
+from .models import Quiz, Question, UserQuestionStatus
 
 
 @admin.register(Quiz)
@@ -23,14 +17,42 @@ class QuizAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["quiz", "question_number",
-                    "short_question_text", "hardness", "get_correct_answer"]
+    list_display = [
+        "quiz",
+        "question_number",
+        "short_question_text",
+        "hardness",
+        "get_correct_answer"
+    ]
     list_filter = ["quiz", "hardness"]
     search_fields = ["question_text"]
-    inlines = [AnswerInline]
+
+    fieldsets = (
+        (None, {
+            'fields': ('quiz', 'question_number', 'question_text', 'hardness')
+        }),
+        ('Answer Choices', {
+            'fields': (
+                'answer_1',
+                'answer_2',
+                'answer_3',
+                'answer_4',
+                'correct_answer'
+            )
+        }),
+    )
 
     def get_correct_answer(self, obj):
-        return obj.correct_answer.answer_text if obj.correct_answer else "Not set"
+        answers = {
+            1: obj.answer_1,
+            2: obj.answer_2,
+            3: obj.answer_3,
+            4: obj.answer_4
+        }
+        correct_text = answers.get(obj.correct_answer, "Not set")
+        if len(correct_text) > 50:
+            correct_text = correct_text[:50] + "..."
+        return format_html('{}', correct_text)
     get_correct_answer.short_description = "Correct Answer"
 
     def short_question_text(self, obj):
@@ -40,53 +62,48 @@ class QuestionAdmin(admin.ModelAdmin):
         return format_html('{}', text)
     short_question_text.short_description = "Question Text"
 
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-        for instance in instances:
-            instance.save()
-        formset.save_m2m()
-
-        # After all answers are saved, let user select the correct answer
-        if not change:  # Only for new questions
-            question = form.instance
-            if not question.correct_answer and question.answers.exists():
-                first_answer = question.answers.first()
-                question.correct_answer = first_answer
-                question.save()
-
-
-@admin.register(Answer)
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ["short_answer_text", "question", "is_correct"]
-    list_filter = ["question__quiz"]
-    search_fields = ["answer_text", "question__question_text"]
-
-    def short_answer_text(self, obj):
-        text = obj.answer_text
-        if len(text) > 50:
-            text = text[:50] + "..."
-        return format_html('{}', text)
-    short_answer_text.short_description = "Answer Text"
-
-    def is_correct(self, obj):
-        return hasattr(obj, 'correct_for_question')
-    is_correct.boolean = True
-    is_correct.short_description = "Correct Answer"
-
 
 @admin.register(UserQuestionStatus)
 class UserQuestionStatusAdmin(admin.ModelAdmin):
-    list_display = ["user", "get_question", "get_answer"]
-    list_filter = ["user", "old_answer__question__quiz"]
-    search_fields = ["user__username", "old_answer__answer_text"]
+    list_display = [
+        "user",
+        "get_question",
+        "get_selected_answer",
+        "is_correct"
+    ]
+    list_filter = [
+        "user",
+        "question__quiz",
+        "selected_answer"
+    ]
+    search_fields = [
+        "user__username",
+        "question__question_text"
+    ]
 
     def get_question(self, obj):
-        return obj.old_answer.question
+        return f"{obj.question.quiz.name} - Q{obj.question.question_number}"
     get_question.short_description = "Question"
 
-    def get_answer(self, obj):
-        text = obj.old_answer.answer_text
-        if len(text) > 50:
-            text = text[:50] + "..."
-        return text
-    get_answer.short_description = "Answer"
+    def get_selected_answer(self, obj):
+        answers = {
+            1: obj.question.answer_1,
+            2: obj.question.answer_2,
+            3: obj.question.answer_3,
+            4: obj.question.answer_4
+        }
+        selected_text = answers.get(obj.selected_answer, "Not set")
+        if len(selected_text) > 50:
+            selected_text = selected_text[:50] + "..."
+        return format_html('{}', selected_text)
+    get_selected_answer.short_description = "Selected Answer"
+
+    def is_correct(self, obj):
+        return obj.selected_answer == obj.question.correct_answer
+    is_correct.boolean = True
+    is_correct.short_description = "Correct"
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing an existing object
+            return ('user', 'question', 'selected_answer')
+        return ()

@@ -17,16 +17,46 @@ class Question(models.Model):
     question_number = models.IntegerField()
     question_text = models.TextField()
     hardness = models.IntegerField()
-    correct_answer = models.OneToOneField(
-        'Answer',
-        null=True,  # Allow null temporarily
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='correct_for_question'
+
+    answer_1 = models.TextField(default="Option 1")
+    answer_2 = models.TextField(default="Option 2")
+    answer_3 = models.TextField(default="Option 3")
+    answer_4 = models.TextField(default="Option 4")
+    correct_answer = models.IntegerField(
+        choices=[
+            (1, 'Answer 1'),
+            (2, 'Answer 2'),
+            (3, 'Answer 3'),
+            (4, 'Answer 4'),
+        ],
+        default=1
     )
 
     def __str__(self):
         return f"{self.quiz.name} - Question {self.question_number}"
+
+
+class UserQuestionStatus(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    old_answer = models.ForeignKey(
+        'Answer', on_delete=models.CASCADE, null=True, blank=True)  # Make this nullable
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, null=True, blank=True)  # Make this nullable
+    selected_answer = models.IntegerField(
+        choices=[
+            (1, 'Answer 1'),
+            (2, 'Answer 2'),
+            (3, 'Answer 3'),
+            (4, 'Answer 4'),
+        ],
+        null=True,  # Make this nullable
+        blank=True
+    )
+
+    class Meta:
+        verbose_name_plural = "User Question Statuses"
+
+# Keep the old Answer model temporarily
 
 
 class Answer(models.Model):
@@ -36,11 +66,3 @@ class Answer(models.Model):
 
     def __str__(self):
         return self.answer_text
-
-
-class UserQuestionStatus(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    old_answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name_plural = "User Question Statuses"
