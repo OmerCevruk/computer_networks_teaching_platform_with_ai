@@ -29,6 +29,9 @@
         <a href="{% url 'login' %}" class="nav-link">Login</a>
         <a href="{% url 'register' %}" class="nav-link">Register</a>
     {% endif %}
+    {% if user.is_superuser %}
+        <a href="{% url 'admin:index' %}" class="nav-link">Admin</a>
+    {% endif %}
 </nav>
 
 <!-- Content Block -->
