@@ -1,6 +1,20 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Quiz, Question, UserQuestionStatus
+from .models import Quiz, Question, UserQuestionStatus, Course, UserCourseProgress
+
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ['title', 'hardness', 'created_at']
+    list_filter = ['hardness']
+    search_fields = ['title', 'description']
+
+
+@admin.register(UserCourseProgress)
+class UserCourseProgressAdmin(admin.ModelAdmin):
+    list_display = ['user', 'course', 'completed', 'last_accessed']
+    list_filter = ['completed', 'course']
+    search_fields = ['user__username', 'course__title']
 
 
 @admin.register(Quiz)

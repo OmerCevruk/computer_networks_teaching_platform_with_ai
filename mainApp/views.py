@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Quiz, Question, UserQuestionStatus
+from .models import Quiz, Question, UserQuestionStatus, Course, UserCourseProgress
 from django.db.models import Count, Exists, OuterRef
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -320,3 +320,77 @@ def register_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'user/register.html', {'form': form})
+
+
+@login_required
+def course_list(request):
+    courses = Course.objects.all()
+    for course in courses:
+        progress = UserCourseProgress.objects.filter(
+            user=request.user,
+            course=course
+        ).first()
+        course.is_completed = progress.completed if progress else False
+
+    return render(request, 'courses/course_list.html', {
+        'courses': courses
+    })
+
+
+@login_required
+def course_detail(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    progress, created = UserCourseProgress.objects.get_or_create(
+        user=request.user,
+        course=course
+    )
+
+    if request.method == 'POST':
+        progress.completed = True
+        progress.save()
+        return redirect('course_list')
+
+    return render(request, 'courses/course_detail.html', {
+        'course': course,
+        'progress': progress
+    })
+
+
+@login_required
+def course_chat(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+
+    # Initialize or get chat messages from session
+    if f'chat_messages_{course_id}' not in request.session:
+        request.session[f'chat_messages_{course_id}'] = []
+
+    if request.method == 'POST':
+        user_message = request.POST.get('message')
+        if user_message:
+            # Add user message to chat
+            request.session[f'chat_messages_{course_id}'].append({
+                'content': user_message,
+                'is_user': True
+            })
+
+            # Generate AI response using the same GPT-2 setup from quiz_chat
+            context = f"You are a helpful tutor explaining the course: {
+                course.title}\n\n"
+            context += f"Course content: {course.content}\n"
+            context += f"Student question: {user_message}\n"
+
+            # Use your existing GPT-2 setup here
+            # This is placeholder response logic - replace with your actual GPT-2 implementation
+            response = "Here's my explanation of the course concept..."
+
+            request.session[f'chat_messages_{course_id}'].append({
+                'content': response,
+                'is_user': False
+            })
+
+            request.session.modified = True
+
+    return render(request, 'courses/course_chat.html', {
+        'course': course,
+        'chat_messages': request.session.get(f'chat_messages_{course_id}', [])
+    })

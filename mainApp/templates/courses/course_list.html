@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="p-6">
+    <h1 class="text-2xl text-cyan-500 mb-6">Network Courses</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for course in courses %}
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+            <div class="p-4">
+                <h2 class="text-xl text-cyan-400 mb-2">{{ course.title }}</h2>
+                <p class="text-gray-300 mb-4">{{ course.description|truncatewords:30 }}</p>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-400">
+                        Difficulty: {{ course.hardness }}/10
+                    </span>
+                    <div class="flex space-x-2">
+                        {% if course.is_completed %}
+                            <span class="bg-green-500 text-white px-2 py-1 rounded text-sm">Completed</span>
+                        {% endif %}
+                        <a href="{% url 'course_detail' course.id %}" 
+                           class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded">
+                            {% if course.is_completed %}Review{% else %}Start{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-gray-400">No courses available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

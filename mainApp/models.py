@@ -2,6 +2,28 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Course(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    content = models.TextField()
+    hardness = models.IntegerField()  # Keeping consistent with Quiz hardness
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+
+class UserCourseProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    last_accessed = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'course']
+
+
 class Quiz(models.Model):
     name = models.CharField(max_length=200)
     hardness = models.IntegerField()
