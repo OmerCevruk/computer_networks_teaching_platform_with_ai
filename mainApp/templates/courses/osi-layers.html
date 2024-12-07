@@ -1,0 +1,72 @@
+{% extends "courses/base_course.html" %}
+
+{% block course_content %}
+<div class="space-y-8">
+    <!-- Introduction Section -->
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-link-color">The OSI Model: Understanding Network Layers</h1>
+        <p class="text-text-color mb-4">
+            The Open Systems Interconnection (OSI) model is a conceptual framework used to understand network interactions in seven distinct layers.
+            Each layer serves the layer above it and is served by the layer below it.
+        </p>
+    </section>
+
+    <!-- Overview Diagram -->
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">OSI Model Overview</h2>
+        <div class="grid grid-cols-1 gap-4">
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">7. Application Layer</h3>
+                <p class="text-text-color">End-user services, file transfers, email, web browsers</p>
+            </div>
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">6. Presentation Layer</h3>
+                <p class="text-text-color">Data formatting, encryption, compression</p>
+            </div>
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">5. Session Layer</h3>
+                <p class="text-text-color">Session establishment, management, and termination</p>
+            </div>
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">4. Transport Layer</h3>
+                <p class="text-text-color">End-to-end connections, reliability, flow control (TCP/UDP)</p>
+            </div>
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">3. Network Layer</h3>
+                <p class="text-text-color">Logical addressing, routing, path determination (IP)</p>
+            </div>
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">2. Data Link Layer</h3>
+                <p class="text-text-color">Physical addressing, error detection, frame management</p>
+            </div>
+            <div class="border border-link-color rounded p-4">
+                <h3 class="font-bold text-link-color">1. Physical Layer</h3>
+                <p class="text-text-color">Physical transmission media, signals, binary transmission</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Layer Descriptions -->
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">Layer Details</h2>
+        
+        <!-- Application Layer -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-link-color mb-2">Application Layer (Layer 7)</h3>
+            <div class="text-text-color space-y-2">
+                <p>The closest layer to end users, providing network services directly to applications.</p>
+                <strong>Key Protocols:</strong>
+                <ul class="list-disc pl-6">
+                    <li>HTTP/HTTPS (Web browsing)</li>
+                    <li>FTP (File transfer)</li>
+                    <li>SMTP (Email)</li>
+                    <li>DNS (Domain name services)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Add other layer sections as in the previous template... -->
+
+    </section>
+</div>
+{% endblock %}

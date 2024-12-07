@@ -11,4 +11,5 @@ dependencies = [
     "psycopg2>=2.9.10",
     "torch>=2.5.1",
     "transformers>=4.46.3",
+    "ollama>=0.4.3",
 ]

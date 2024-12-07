@@ -1,20 +1,48 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Quiz, Question, UserQuestionStatus, Course, UserCourseProgress
+from .models import Quiz, Question, UserQuestionStatus, Course, CourseProgress
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ['title', 'hardness', 'created_at']
-    list_filter = ['hardness']
-    search_fields = ['title', 'description']
+    list_display = ['name', 'slug', 'created_at',
+                    'updated_at', 'student_count']
+    list_filter = ['created_at', 'updated_at']
+    search_fields = ['name', 'description']
+    # Automatically generate slug from name
+    prepopulated_fields = {'slug': ('name',)}
+    date_hierarchy = 'created_at'
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'slug', 'description')
+        }),
+        ('Metadata', {
+            'classes': ('collapse',),
+            'fields': ('created_at', 'updated_at'),
+        }),
+    )
+
+    readonly_fields = ['created_at', 'updated_at']
+
+    def student_count(self, obj):
+        return CourseProgress.objects.filter(course=obj).count()
+    student_count.short_description = 'Enrolled Students'
 
 
-@admin.register(UserCourseProgress)
-class UserCourseProgressAdmin(admin.ModelAdmin):
+@admin.register(CourseProgress)
+class CourseProgressAdmin(admin.ModelAdmin):
     list_display = ['user', 'course', 'completed', 'last_accessed']
-    list_filter = ['completed', 'course']
-    search_fields = ['user__username', 'course__title']
+    list_filter = ['completed', 'last_accessed', 'course']
+    search_fields = ['user__username', 'course__name']
+    raw_id_fields = ['user', 'course']
+
+    readonly_fields = ['last_accessed']
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing an existing object
+            return self.readonly_fields + ['user', 'course']
+        return self.readonly_fields
 
 
 @admin.register(Quiz)

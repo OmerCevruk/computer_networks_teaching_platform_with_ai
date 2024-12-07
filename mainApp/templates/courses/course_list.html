@@ -1,36 +1,49 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends "base.html" %}
 
+{% block title %}Courses - Computer Networks Using AI{% endblock %}
+
+{% block content %}
 <div class="p-6">
-    <h1 class="text-2xl text-cyan-500 mb-6">Network Courses</h1>
+    <h1 class="text-2xl font-bold mb-6 text-link-color">Available Courses</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for course in courses %}
-        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-            <div class="p-4">
-                <h2 class="text-xl text-cyan-400 mb-2">{{ course.title }}</h2>
-                <p class="text-gray-300 mb-4">{{ course.description|truncatewords:30 }}</p>
-                
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-400">
-                        Difficulty: {{ course.hardness }}/10
-                    </span>
-                    <div class="flex space-x-2">
-                        {% if course.is_completed %}
-                            <span class="bg-green-500 text-white px-2 py-1 rounded text-sm">Completed</span>
-                        {% endif %}
-                        <a href="{% url 'course_detail' course.id %}" 
-                           class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded">
-                            {% if course.is_completed %}Review{% else %}Start{% endif %}
-                        </a>
-                    </div>
+        <div class="bg-header-bg-color rounded-lg p-6 shadow-lg">
+            <h2 class="text-xl font-semibold mb-4 text-link-color">{{ course.name }}</h2>
+            
+            <p class="text-text-color mb-4">{{ course.description }}</p>
+            
+            <div class="mb-4">
+                <div class="bg-primary-bg-color rounded-full h-2 overflow-hidden">
+                    {% if course.user_progress.completed %}
+                    <div class="bg-link-color h-full" style="width: 100%"></div>
+                    {% else %}
+                    <div class="bg-link-color h-full" style="width: 0%"></div>
+                    {% endif %}
                 </div>
+                <p class="text-sm text-text-color mt-1">
+                    {% if course.user_progress.completed %}
+                    Completed
+                    {% else %}
+                    In Progress
+                    {% endif %}
+                </p>
             </div>
+            
+            <a href="{% url 'course_view' course.slug %}" 
+               class="inline-block bg-link-color text-white px-4 py-2 rounded hover:bg-link-hover-bg-color transition">
+                {% if course.user_progress.completed %}
+                Review Course
+                {% else %}
+                Start Course
+                {% endif %}
+            </a>
         </div>
         {% empty %}
-        <p class="text-gray-400">No courses available yet.</p>
+        <div class="col-span-full text-center text-text-color">
+            <p>No courses available at the moment.</p>
+        </div>
         {% endfor %}
     </div>
 </div>
-
 {% endblock %}

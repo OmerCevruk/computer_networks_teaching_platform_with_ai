@@ -1,13 +1,19 @@
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Quiz, Question, UserQuestionStatus, Course, UserCourseProgress
 from django.db.models import Count, Exists, OuterRef
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import F
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
+from asgiref.sync import sync_to_async
+from .models import Quiz, Question, UserQuestionStatus, Course, CourseProgress
+from .chat import OllamaChat
+import asyncio
 import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
 
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 model = GPT2LMHeadModel.from_pretrained('gpt2')
@@ -323,66 +329,66 @@ def register_view(request):
 
 
 @login_required
-def course_list(request):
-    courses = Course.objects.all()
-    for course in courses:
-        progress = UserCourseProgress.objects.filter(
-            user=request.user,
-            course=course
-        ).first()
-        course.is_completed = progress.completed if progress else False
+def course_view(request, course_slug):
+    course = get_object_or_404(Course, slug=course_slug)
 
-    return render(request, 'courses/course_list.html', {
-        'courses': courses
-    })
-
-
-@login_required
-def course_detail(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    progress, created = UserCourseProgress.objects.get_or_create(
+    # Get or create course progress
+    progress, _ = CourseProgress.objects.get_or_create(
         user=request.user,
         course=course
     )
 
-    if request.method == 'POST':
-        progress.completed = True
-        progress.save()
-        return redirect('course_list')
+    # Get chat messages from session
+    chat_messages = request.session.get(f'chat_messages_{course.id}', [])
 
-    return render(request, 'courses/course_detail.html', {
+    context = {
         'course': course,
-        'progress': progress
-    })
+        'progress': progress,
+        'chat_messages': chat_messages
+    }
+
+    template_name = f'courses/{course_slug}.html'
+    return render(request, template_name, context)
+
+
+# Helper functions with sync_to_async
+get_course = sync_to_async(get_object_or_404)
 
 
 @login_required
-def course_chat(request, course_id):
-    course = get_object_or_404(Course, pk=course_id)
+async def course_chat(request, course_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    # Initialize or get chat messages from session
-    if f'chat_messages_{course_id}' not in request.session:
-        request.session[f'chat_messages_{course_id}'] = []
+    try:
+        # Get course using sync_to_async wrapper
+        course = await get_course(Course, id=course_id)
+        message = request.POST.get('message')
 
-    if request.method == 'POST':
-        user_message = request.POST.get('message')
-        if user_message:
-            # Add user message to chat
-            request.session[f'chat_messages_{course_id}'].append({
-                'content': user_message,
-                'is_user': True
-            })
+        if not message:
+            return JsonResponse({'error': 'Message is required'}, status=400)
 
-            # Generate AI response using the same GPT-2 setup from quiz_chat
-            context = f"You are a helpful tutor explaining the course: {
-                course.title}\n\n"
-            context += f"Course content: {course.content}\n"
-            context += f"Student question: {user_message}\n"
+        # Initialize chat if not in session
+        if f'chat_messages_{course_id}' not in request.session:
+            request.session[f'chat_messages_{course_id}'] = []
 
-            # Use your existing GPT-2 setup here
-            # This is placeholder response logic - replace with your actual GPT-2 implementation
-            response = "Here's my explanation of the course concept..."
+        # Add user message to session
+        request.session[f'chat_messages_{course_id}'].append({
+            'content': message,
+            'is_user': True
+        })
 
+        # Get AI response
+        chat = OllamaChat()
+        context = f"Course: {course.name}\nDescription: {course.description}"
+
+        try:
+            response = await chat.get_response(
+                request.session[f'chat_messages_{course_id}'],
+                context=context
+            )
+
+            # Add AI response to session
             request.session[f'chat_messages_{course_id}'].append({
                 'content': response,
                 'is_user': False
@@ -390,7 +396,33 @@ def course_chat(request, course_id):
 
             request.session.modified = True
 
-    return render(request, 'courses/course_chat.html', {
-        'course': course,
-        'chat_messages': request.session.get(f'chat_messages_{course_id}', [])
+            # Redirect back to the course page
+            return HttpResponseRedirect(reverse('course_view', kwargs={'course_slug': course.slug}))
+
+        except Exception as e:
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
+
+
+@login_required
+def course_list(request):
+    courses = Course.objects.all().order_by('name')
+
+    # Get progress for each course
+    for course in courses:
+        progress, created = CourseProgress.objects.get_or_create(
+            user=request.user,
+            course=course,
+            defaults={'completed': False}
+        )
+        course.user_progress = progress
+
+    return render(request, 'courses/course_list.html', {
+        'courses': courses
     })

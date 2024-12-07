@@ -14,6 +14,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('quiz/<int:quiz_id>/chat/', views.quiz_chat, name='quiz_chat'),
     path('courses/', views.course_list, name='courses'),
-    path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
-    path('courses/<int:course_id>/chat/', views.course_chat, name='course_chat')
+    path('courses/<slug:course_slug>/', views.course_view, name='course_view'),
+    path('courses/chat/<int:course_id>/',
+         views.course_chat, name='course_chat'),
 ]

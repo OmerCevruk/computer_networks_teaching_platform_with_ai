@@ -56,3 +56,4 @@ body {
     color: var(--link-hover-bg-color); /* Change color on hover */
     border-bottom: 2px solid var(--link-hover-bg-color); /* Underline on hover */
 }
+
