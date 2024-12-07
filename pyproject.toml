@@ -1,7 +1,7 @@
 [project]
 name = "networkai"
 version = "0.1.0"
-description = "Add your description here"
+description = "Networkai teaching computer networks using ai "
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
