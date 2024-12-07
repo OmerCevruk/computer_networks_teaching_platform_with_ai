@@ -44,3 +44,15 @@ body {
     padding: 2rem;
 }
 
+.content a {
+    color: var(--link-color); /* Consistent link color */
+    text-decoration: none; /* Remove underline for a cleaner look */
+    font-weight: bold; /* Emphasize the links */
+    transition: color 0.3s ease, border-bottom 0.3s ease; /* Smooth transition effect */
+    border-bottom: 2px solid transparent; /* Subtle underline effect */
+}
+
+.content a:hover {
+    color: var(--link-hover-bg-color); /* Change color on hover */
+    border-bottom: 2px solid var(--link-hover-bg-color); /* Underline on hover */
+}
