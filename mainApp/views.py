@@ -1,6 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Exists, OuterRef, Q
-from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -10,14 +9,76 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from asgiref.sync import sync_to_async
+from django.template.loader import render_to_string
 from .models import Quiz, Question, UserQuestionStatus, Course, CourseProgress
-
 from .chat import OllamaChat
+from datetime import timedelta
 from typing import List, Dict
 import asyncio
 
 
 # Create your views here.
+
+render_to_response = sync_to_async(render)
+render_to_string_async = sync_to_async(render_to_string)
+
+
+@login_required
+async def ai_chat(request):
+    # Initialize or get chat messages from session
+    messages = request.session.get('ai_chat_messages', [])
+
+    if request.method == 'POST':
+        message = request.POST.get('message')
+        if message:
+            # Add user message to chat history
+            messages.append({
+                'content': message,
+                'is_user': True
+            })
+
+            # Get AI response
+            chat = OllamaChat()
+            context = "You are a helpful AI teaching assistant specializing in computer networks. Provide clear, concise explanations."
+
+            try:
+                response = await chat.get_response(messages, context=context)
+
+                # Add AI response to chat history
+                messages.append({
+                    'content': response,
+                    'is_user': False
+                })
+
+                request.session['ai_chat_messages'] = messages
+                request.session.modified = True
+
+            except Exception as e:
+                return JsonResponse({
+                    'error': f'Error getting AI response: {str(e)}'
+                }, status=500)
+
+    # Render template asynchronously
+    context = {
+        'messages': messages,
+        'user': request.user,  # Pass user explicitly
+    }
+
+    return await render_to_response(
+        request,
+        'ai_chat.html',
+        context
+    )
+
+
+@login_required
+def clear_chat(request):
+    if 'ai_chat_messages' in request.session:
+        request.session['ai_chat_messages'] = []
+        request.session.modified = True
+    return JsonResponse({'status': 'success'})
+
+
 get_quiz = sync_to_async(get_object_or_404)
 
 
@@ -137,41 +198,51 @@ def dashboard(request):
     # Get user's quiz statistics
     user_stats = {}
 
-    # Get completed quizzes (where user has answered all questions)
-    completed_quizzes = Quiz.objects.annotate(
-        total_questions=Count('questions'),
-        answered_questions=Count(
-            'questions',
-            filter=Q(
-                questions__userquestionstatus__user=request.user
-            )
-        )
-    ).filter(
-        total_questions=F('answered_questions')
-    )
+    # Get all quizzes where user has at least one answer
+    user_quiz_attempts = Quiz.objects.filter(
+        questions__userquestionstatus__user=request.user
+    ).distinct()
 
-    # Calculate total completed quizzes
-    user_stats['completed_quizzes'] = completed_quizzes.count()
-
-    # Calculate average score across all answered questions
-    user_answers = UserQuestionStatus.objects.filter(user=request.user)
-    if user_answers.exists():
-        correct_answers = user_answers.filter(
-            selected_answer=F('question__correct_answer')
+    # Count completed quizzes
+    completed_quizzes = []
+    for quiz in user_quiz_attempts:
+        # Get all questions for this quiz
+        total_questions = quiz.questions.count()
+        # Get answered questions for this quiz
+        answered_questions = UserQuestionStatus.objects.filter(
+            user=request.user,
+            question__quiz=quiz
         ).count()
-        total_answers = user_answers.count()
+
+        # If user has answered all questions, consider it completed
+        if total_questions > 0 and answered_questions >= total_questions:
+            completed_quizzes.append(quiz)
+
+    user_stats['completed_quizzes'] = len(completed_quizzes)
+
+    # Calculate average score for completed quizzes
+    total_score = 0
+    if completed_quizzes:
+        for quiz in completed_quizzes:
+            correct_answers = UserQuestionStatus.objects.filter(
+                user=request.user,
+                question__quiz=quiz,
+                selected_answer=F('question__correct_answer')
+            ).count()
+            total_questions = quiz.questions.count()
+            if total_questions > 0:
+                quiz_score = (correct_answers / total_questions) * 100
+                total_score += quiz_score
+
         user_stats['average_score'] = round(
-            (correct_answers / total_answers) * 100 if total_answers > 0 else 0
-        )
+            total_score / len(completed_quizzes))
     else:
         user_stats['average_score'] = 0
 
-    # Count unique topics (based on quizzes attempted)
-    user_stats['topics_covered'] = Quiz.objects.filter(
-        questions__userquestionstatus__user=request.user
-    ).distinct().count()
+    # Count topics (based on unique quizzes attempted)
+    user_stats['topics_covered'] = user_quiz_attempts.count()
 
-    # Get featured topics with user progress
+    # Get featured topics
     featured_topics = [
         {
             'name': 'OSI Model',
@@ -183,7 +254,7 @@ def dashboard(request):
                 'Transport Layer'
             ],
             'quiz_count': Quiz.objects.filter(name__icontains='OSI').count(),
-            'user_progress': _calculate_topic_progress(request.user, 'OSI')
+            'completed_quizzes': len([q for q in completed_quizzes if 'OSI' in q.name])
         },
         {
             'name': 'TCP/IP Protocol Suite',
@@ -195,7 +266,7 @@ def dashboard(request):
                 'Application Protocols'
             ],
             'quiz_count': Quiz.objects.filter(name__icontains='TCP').count(),
-            'user_progress': _calculate_topic_progress(request.user, 'TCP')
+            'completed_quizzes': len([q for q in completed_quizzes if 'TCP' in q.name])
         },
         {
             'name': 'Network Security',
@@ -207,11 +278,11 @@ def dashboard(request):
                 'Security Protocols'
             ],
             'quiz_count': Quiz.objects.filter(name__icontains='Security').count(),
-            'user_progress': _calculate_topic_progress(request.user, 'Security')
+            'completed_quizzes': len([q for q in completed_quizzes if 'Security' in q.name])
         }
     ]
 
-    # Get latest updates (new quizzes, content changes, etc.)
+    # Get latest updates
     latest_updates = [
         {
             'title': 'New Quiz Added: Network Protocols',
@@ -230,8 +301,9 @@ def dashboard(request):
         }
     ]
 
-    # Check if user needs to complete profile or take initial assessment
-    user_stats['show_welcome'] = not user_answers.exists()
+    # Check if user needs welcome message
+    user_stats['show_welcome'] = not UserQuestionStatus.objects.filter(
+        user=request.user).exists()
 
     context = {
         'user_stats': user_stats,
@@ -264,21 +336,85 @@ def assignments(request):
     return render(request, 'assignments.html')
 
 
+@login_required
 def resources(request):
-    # Add any necessary context or data here
+    # Organize resources by categories
     resources_data = {
-        # Example resources
-        'articles': [
-            {'title': 'Django OfficialDocumentation',
-                'link': 'https://docs.djangoproject.com/en/stable/'},
-            {'title': 'Django REST Framework',
-                'link': 'https://www.django-rest-framework.org/'},
-            {'title': 'Python Documentation', 'link': 'https://docs.python.org/3/'},
-            {'title': 'Python ', 'link': 'https://docs.python.org/3/'},
-            {'title': 'Python-the animal ', 'link': 'https://docs.python.org/3/'},
+        'documentation': [
+            {
+                'title': 'Official Python Documentation',
+                'description': 'Complete Python language reference and tutorials',
+                'link': 'https://docs.python.org/3/',
+                'type': 'Documentation'
+            },
+            {
+                'title': 'RFC Documents',
+                'description': 'Official networking protocol specifications',
+                'link': 'https://www.ietf.org/standards/rfcs/',
+                'type': 'Documentation'
+            },
         ],
+        'networking_basics': [
+            {
+                'title': 'Cisco Networking Basics',
+                'description': 'Fundamental networking concepts and tutorials',
+                'link': 'https://www.cisco.com/c/en/us/solutions/enterprise-networks/networking-basics.html',
+                'type': 'Tutorial'
+            },
+            {
+                'title': 'Computer Networks (Course)',
+                'description': 'Comprehensive computer networks course materials',
+                'link': 'https://gaia.cs.umass.edu/kurose_ross/lectures.php',
+                'type': 'Course'
+            },
+        ],
+        'security_resources': [
+            {
+                'title': 'NIST Cybersecurity Framework',
+                'description': 'Guidelines for network security best practices',
+                'link': 'https://www.nist.gov/cyberframework',
+                'type': 'Framework'
+            },
+            {
+                'title': 'OWASP Top 10',
+                'description': 'Top 10 web application security risks',
+                'link': 'https://owasp.org/www-project-top-ten/',
+                'type': 'Security Guide'
+            },
+        ],
+        'tools_software': [
+            {
+                'title': 'Wireshark',
+                'description': 'Network protocol analyzer for network troubleshooting',
+                'link': 'https://www.wireshark.org/',
+                'type': 'Tool'
+            },
+            {
+                'title': 'Network Mapper (Nmap)',
+                'description': 'Network discovery and security scanning tool',
+                'link': 'https://nmap.org/',
+                'type': 'Tool'
+            },
+        ],
+        'practice_labs': [
+            {
+                'title': 'Cisco Packet Tracer',
+                'description': 'Network simulation and visualization tool',
+                'link': 'https://www.netacad.com/courses/packet-tracer',
+                'type': 'Lab'
+            },
+            {
+                'title': 'GNS3',
+                'description': 'Network software emulator',
+                'link': 'https://www.gns3.com/',
+                'type': 'Lab'
+            },
+        ]
     }
-    return render(request, 'resources/resources.html', resources_data)
+
+    return render(request, 'resources.html', {
+        'resources_data': resources_data
+    })
 
 
 def progress(request):

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Resources - Network AI Learning{% endblock %}
+{% block content %}
+
+<div class="max-w-7xl mx-auto py-8 px-4">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+        <h1 class="text-4xl font-bold text-text-color mb-4">Learning Resources</h1>
+        <p class="text-lg text-text-color">Explore our curated collection of networking resources to enhance your learning journey.</p>
+    </div>
+
+    <!-- Documentation Section -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-link-color mb-6">Documentation & References</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for resource in resources_data.documentation %}
+            <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold text-text-color mb-2">{{ resource.title }}</h3>
+                    <span class="bg-primary-bg-color text-text-color text-sm px-2 py-1 rounded">{{ resource.type }}</span>
+                </div>
+                <p class="text-text-color mb-4">{{ resource.description }}</p>
+                <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" 
+                   class="text-link-color hover:text-link-hover-bg-color inline-flex items-center gap-1">
+                    Visit Resource →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Networking Basics -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-link-color mb-6">Networking Basics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for resource in resources_data.networking_basics %}
+            <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold text-text-color mb-2">{{ resource.title }}</h3>
+                    <span class="bg-primary-bg-color text-text-color text-sm px-2 py-1 rounded">{{ resource.type }}</span>
+                </div>
+                <p class="text-text-color mb-4">{{ resource.description }}</p>
+                <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" 
+                   class="text-link-color hover:text-link-hover-bg-color inline-flex items-center gap-1">
+                    Visit Resource →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Security Resources -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-link-color mb-6">Security Resources</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for resource in resources_data.security_resources %}
+            <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold text-text-color mb-2">{{ resource.title }}</h3>
+                    <span class="bg-primary-bg-color text-text-color text-sm px-2 py-1 rounded">{{ resource.type }}</span>
+                </div>
+                <p class="text-text-color mb-4">{{ resource.description }}</p>
+                <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" 
+                   class="text-link-color hover:text-link-hover-bg-color inline-flex items-center gap-1">
+                    Visit Resource →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tools & Software -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-link-color mb-6">Tools & Software</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for resource in resources_data.tools_software %}
+            <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold text-text-color mb-2">{{ resource.title }}</h3>
+                    <span class="bg-primary-bg-color text-text-color text-sm px-2 py-1 rounded">{{ resource.type }}</span>
+                </div>
+                <p class="text-text-color mb-4">{{ resource.description }}</p>
+                <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" 
+                   class="text-link-color hover:text-link-hover-bg-color inline-flex items-center gap-1">
+                    Visit Resource →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Practice Labs -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-link-color mb-6">Practice Labs</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for resource in resources_data.practice_labs %}
+            <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold text-text-color mb-2">{{ resource.title }}</h3>
+                    <span class="bg-primary-bg-color text-text-color text-sm px-2 py-1 rounded">{{ resource.type }}</span>
+                </div>
+                <p class="text-text-color mb-4">{{ resource.description }}</p>
+                <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" 
+                   class="text-link-color hover:text-link-hover-bg-color inline-flex items-center gap-1">
+                    Visit Resource →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

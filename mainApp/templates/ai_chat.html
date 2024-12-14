@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}AI Chat - Network AI Learning{% endblock %}
+{% block content %}
+
+<div style="padding: 32px;">
+    <h1 style="color: #35A7A5; font-size: 24px; margin-bottom: 24px;">Network AI Assistant</h1>
+
+    <div style="display: flex; gap: 24px; height: calc(100vh - 150px);">
+        <!-- Study Topics Panel -->
+        <div style="flex: 0 0 40%; background-color: #172044; border-radius: 8px; padding: 16px; overflow-y: auto;">
+            <h2 style="color: #35A7A5; margin-bottom: 16px;">Study Topics</h2>
+
+            <!-- OSI Model -->
+            <div style="margin-bottom: 24px; padding: 16px; border-radius: 8px; background-color: #0E1428; border: 1px solid #247BA0;">
+                <h3 style="color: #35A7A5; margin-bottom: 8px;">OSI Model</h3>
+                <ul style="color: #247BA0; list-style-type: none; padding: 0;">
+                    <li>• Physical Layer</li>
+                    <li>• Data Link Layer</li>
+                    <li>• Network Layer</li>
+                    <li>• Transport Layer</li>
+                    <li>• Session Layer</li>
+                    <li>• Presentation Layer</li>
+                    <li>• Application Layer</li>
+                </ul>
+            </div>
+
+            <!-- TCP/IP -->
+            <div style="margin-bottom: 24px; padding: 16px; border-radius: 8px; background-color: #0E1428; border: 1px solid #247BA0;">
+                <h3 style="color: #35A7A5; margin-bottom: 8px;">TCP/IP Protocol Suite</h3>
+                <ul style="color: #247BA0; list-style-type: none; padding: 0;">
+                    <li>• IP Addressing</li>
+                    <li>• Routing</li>
+                    <li>• TCP vs UDP</li>
+                    <li>• DNS</li>
+                    <li>• DHCP</li>
+                </ul>
+            </div>
+
+            <!-- Network Security -->
+            <div style="margin-bottom: 24px; padding: 16px; border-radius: 8px; background-color: #0E1428; border: 1px solid #247BA0;">
+                <h3 style="color: #35A7A5; margin-bottom: 8px;">Network Security</h3>
+                <ul style="color: #247BA0; list-style-type: none; padding: 0;">
+                    <li>• Firewalls</li>
+                    <li>• Encryption</li>
+                    <li>• VPN</li>
+                    <li>• Security Protocols</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div style="flex: 0 0 60%; background-color: #172044; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;">
+            <h2 style="color: #35A7A5; margin-bottom: 16px;">Ask Questions</h2>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; margin-bottom: 16px; padding: 16px; background-color: #0E1428; border-radius: 8px;">
+                {% if not messages %}
+                <div style="color: #247BA0; text-align: center; padding: 20px;">
+                    Welcome! How can I help you learn about computer networks today?
+                </div>
+                {% endif %}
+
+                {% for message in messages %}
+                <div style="margin-bottom: 16px; {% if message.is_user %}text-align: right;{% endif %}">
+                    <div style="display: inline-block; max-width: 80%; padding: 12px 16px; border-radius: 12px; 
+                        {% if message.is_user %}
+                            background-color: #35A7A5; color: #0E1428;
+                        {% else %}
+                            background-color: #172044; color: #247BA0; text-align: left;
+                        {% endif %}">
+                        {% if not message.is_user %}
+                        <div style="font-weight: bold; margin-bottom: 4px; color: #35A7A5;">
+                            AI Tutor:
+                        </div>
+                        {% endif %}
+                        {{ message.content|linebreaks }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Message Input Form -->
+            <form id="chat-form" method="POST" style="display: flex; gap: 8px;">
+                {% csrf_token %}
+                <input type="text" 
+                       name="message" 
+                       id="message-input" 
+                       placeholder="Type your question here..."
+                       style="flex-grow: 1; background-color: #0E1428; color: #247BA0; border: none; padding: 12px; border-radius: 8px;"
+                       required>
+                <button type="submit" 
+                        style="background-color: #35A7A5; color: #0E1428; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer;">
+                    Send
+                </button>
+                <button type="button" 
+                        id="clear-chat"
+                        style="background-color: #0E1428; color: #247BA0; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer;">
+                    Clear
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const clearButton = document.getElementById('clear-chat');
+    const topicItems = document.querySelectorAll('ul li');
+
+    // Auto-scroll to bottom of messages
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Handle form submission
+    chatForm.addEventListener('submit', function(e) {
+        if (!messageInput.value.trim()) {
+            e.preventDefault();
+            return;
+        }
+    });
+
+    // Clear chat history
+    clearButton.addEventListener('click', async function() {
+        try {
+            const response = await fetch('/chat/clear/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                }
+            });
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error clearing chat:', error);
+        }
+    });
+
+    // Make topic items clickable
+    topicItems.forEach(item => {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', function() {
+            messageInput.value = `Can you explain about ${this.textContent.trim()}?`;
+            chatForm.submit();
+        });
+    });
+
+    // Scroll to bottom on load
+    scrollToBottom();
+});
+</script>
+{% endblock %}

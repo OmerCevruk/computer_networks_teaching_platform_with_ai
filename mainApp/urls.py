@@ -17,4 +17,6 @@ urlpatterns = [
     path('courses/<slug:course_slug>/', views.course_view, name='course_view'),
     path('courses/chat/<int:course_id>/',
          views.course_chat, name='course_chat'),
+    path('chat/', views.ai_chat, name='ai_chat'),
+    path('chat/clear/', views.clear_chat, name='clear_chat'),
 ]

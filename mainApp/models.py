@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import F
 
 
 class Course(models.Model):
@@ -26,6 +28,27 @@ class CourseProgress(models.Model):
 class Quiz(models.Model):
     name = models.CharField(max_length=200)
     hardness = models.IntegerField()
+
+    def get_completion_percentage(self, user):
+        total_questions = self.questions.count()
+        if total_questions == 0:
+            return 0
+        answered = self.questions.filter(
+            userquestionstatus__user=user
+        ).count()
+        return round((answered / total_questions) * 100)
+
+    def get_user_score(self, user):
+        answers = UserQuestionStatus.objects.filter(
+            user=user,
+            question__quiz=self
+        )
+        if not answers.exists():
+            return 0
+        correct = answers.filter(
+            selected_answer=F('question__correct_answer')
+        ).count()
+        return round((correct / answers.count()) * 100)
 
     def __str__(self):
         return self.name

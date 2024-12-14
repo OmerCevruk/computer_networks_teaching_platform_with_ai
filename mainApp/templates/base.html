@@ -20,7 +20,7 @@
     <a href="{% url 'progress' %}" class="nav-link">Progress</a>
     <a href="{% url 'resources' %}" class="nav-link">Resources</a>
     <a href="{% url 'courses'%}" class="nav-link">Courses</a>
-
+    <a href="{% url 'ai_chat' %}" class="nav-link">AI Chat</a>
     {% if user.is_authenticated %}
         <!-- Show 'Logout' link if the user is logged in -->
         <a href="{% url 'logout' %}" class="nav-link">Logout</a>
