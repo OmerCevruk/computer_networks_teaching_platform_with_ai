@@ -4,7 +4,7 @@ import asyncio
 
 
 class OllamaChat:
-    def __init__(self, model_name: str = "mistral"):
+    def __init__(self, model_name: str = "gemma:2b"):
         """Initialize OllamaChat with specified model."""
         self.model_name = model_name
 
