@@ -73,7 +73,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'networkai.wsgi.application'
+ASGI_APPLICATION = 'networkai.asgi.application'
 
 
 # Database

@@ -1,8 +1,108 @@
 {% extends "base.html" %}
-
-{% block title %}Home - Computer Networks Using AI{% endblock %}
-
+{% block title %}Dashboard - Computer Networks Using AI{% endblock %}
 {% block content %}
-    <h2>Welcome to Computer Networks Using AI</h2>
-    <p>This is the home page. Use the navigation links above to explore different sections.</p>
+
+<!-- Hero Section -->
+<div class="bg-primary-bg-color p-8 rounded-lg shadow-lg mb-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold text-text-color mb-4">Welcome to Network AI Learning</h1>
+        <p class="text-lg text-text-color mb-6">Master computer networking concepts with the help of AI-powered learning tools and interactive quizzes.</p>
+        <div class="flex gap-4">
+            <a href="{% url 'quizzes' %}" class="bg-link-color hover:bg-link-hover-bg-color text-white px-6 py-2 rounded-lg transition-colors">Start Learning</a>
+            <a href="{% url 'resources' %}" class="border border-link-color text-link-color hover:bg-link-hover-bg-color hover:text-white px-6 py-2 rounded-lg transition-colors">View Resources</a>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Topics Section -->
+<div class="max-w-7xl mx-auto mb-12">
+    <h2 class="text-3xl font-bold text-text-color mb-8">Featured Topics</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- OSI Model -->
+        <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+            <h3 class="text-xl font-bold text-link-color mb-2">OSI Model</h3>
+            <p class="text-text-color mb-4">Understand the seven layers of the OSI model and their functions in network communication.</p>
+            <ul class="text-text-color mb-4 pl-4">
+                <li>Physical Layer</li>
+                <li>Data Link Layer</li>
+                <li>Network Layer</li>
+                <li>Transport Layer</li>
+            </ul>
+            <a href="#" class="text-link-color hover:text-link-hover-bg-color">Learn more →</a>
+        </div>
+
+        <!-- TCP/IP -->
+        <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+            <h3 class="text-xl font-bold text-link-color mb-2">TCP/IP Protocol Suite</h3>
+            <p class="text-text-color mb-4">Master the fundamentals of TCP/IP and how it enables internet communication.</p>
+            <ul class="text-text-color mb-4 pl-4">
+                <li>IP Addressing</li>
+                <li>Routing Protocols</li>
+                <li>Transport Protocols</li>
+                <li>Application Protocols</li>
+            </ul>
+            <a href="#" class="text-link-color hover:text-link-hover-bg-color">Learn more →</a>
+        </div>
+
+        <!-- Network Security -->
+        <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+            <h3 class="text-xl font-bold text-link-color mb-2">Network Security</h3>
+            <p class="text-text-color mb-4">Learn about essential network security concepts and best practices.</p>
+            <ul class="text-text-color mb-4 pl-4">
+                <li>Firewalls</li>
+                <li>Encryption</li>
+                <li>Authentication</li>
+                <li>Security Protocols</li>
+            </ul>
+            <a href="#" class="text-link-color hover:text-link-hover-bg-color">Learn more →</a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Section -->
+<div class="max-w-7xl mx-auto mb-12">
+    <div class="bg-header-bg-color rounded-lg p-8">
+        <h2 class="text-3xl font-bold text-text-color mb-6">Your Progress</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="p-4 bg-primary-bg-color rounded-lg">
+                <h4 class="text-link-color font-bold mb-2">Completed Quizzes</h4>
+                <p class="text-3xl text-text-color">0</p>
+            </div>
+            <div class="p-4 bg-primary-bg-color rounded-lg">
+                <h4 class="text-link-color font-bold mb-2">Average Score</h4>
+                <p class="text-3xl text-text-color">0%</p>
+            </div>
+            <div class="p-4 bg-primary-bg-color rounded-lg">
+                <h4 class="text-link-color font-bold mb-2">Topics Covered</h4>
+                <p class="text-3xl text-text-color">0</p>
+            </div>
+            <div class="p-4 bg-primary-bg-color rounded-lg">
+                <h4 class="text-link-color font-bold mb-2">Time Spent</h4>
+                <p class="text-3xl text-text-color">0h</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Updates -->
+<div class="max-w-7xl mx-auto mb-12">
+    <h2 class="text-3xl font-bold text-text-color mb-8">Latest Updates</h2>
+    <div class="bg-header-bg-color rounded-lg p-6 shadow-md">
+        <div class="space-y-4">
+            <div class="border-b border-primary-bg-color pb-4">
+                <h3 class="text-link-color font-bold">New Quiz Added: Network Protocols</h3>
+                <p class="text-text-color">Test your knowledge of common networking protocols and their applications.</p>
+            </div>
+            <div class="border-b border-primary-bg-color pb-4">
+                <h3 class="text-link-color font-bold">Updated Content: Cybersecurity Basics</h3>
+                <p class="text-text-color">New materials added on network security fundamentals and best practices.</p>
+            </div>
+            <div>
+                <h3 class="text-link-color font-bold">AI Assistant Improvement</h3>
+                <p class="text-text-color">Enhanced capabilities for explaining complex networking concepts.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

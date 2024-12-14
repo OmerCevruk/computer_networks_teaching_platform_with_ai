@@ -1,5 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import F
@@ -9,20 +11,253 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from asgiref.sync import sync_to_async
 from .models import Quiz, Question, UserQuestionStatus, Course, CourseProgress
+
 from .chat import OllamaChat
+from typing import List, Dict
 import asyncio
-import torch
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-model = GPT2LMHeadModel.from_pretrained('gpt2')
 
 # Create your views here.
+get_quiz = sync_to_async(get_object_or_404)
 
 
+@sync_to_async
+def get_user_answers(user, quiz):
+    return list(UserQuestionStatus.objects.filter(
+        user=user,
+        question__quiz=quiz
+    ).select_related('question'))
+
+
+@sync_to_async
+def process_answers(user_answers):
+    processed = []
+    for status in user_answers:
+        question = status.question
+        is_correct = status.selected_answer == question.correct_answer
+
+        answers = {
+            1: question.answer_1,
+            2: question.answer_2,
+            3: question.answer_3,
+            4: question.answer_4
+        }
+
+        processed.append({
+            'question_number': question.question_number,
+            'question_text': question.question_text,
+            'selected_answer': answers[status.selected_answer],
+            'correct_answer': answers[question.correct_answer],
+            'is_correct': is_correct
+        })
+    return processed
+
+
+@login_required
+async def quiz_chat(request, quiz_id):
+    """
+    Async view for quiz chat functionality using Ollama
+    """
+    try:
+        # Get quiz using sync_to_async wrapper
+        quiz = await get_quiz(Quiz, pk=quiz_id)
+
+        if request.method == 'POST':
+            message = request.POST.get('message')
+            if not message:
+                return JsonResponse({'error': 'Message is required'}, status=400)
+
+            # Get and process user's answers
+            user_answers = await get_user_answers(request.user, quiz)
+            answers_context = await process_answers(user_answers)
+
+            # Initialize chat if not in session
+            if f'chat_messages_{quiz_id}' not in request.session:
+                request.session[f'chat_messages_{quiz_id}'] = []
+
+            # Add user message to session
+            request.session[f'chat_messages_{quiz_id}'].append({
+                'content': message,
+                'is_user': True
+            })
+
+            # Prepare context for Ollama
+            context = f"Quiz: {quiz.name}\n\nQuestion Review:\n"
+            for answer in answers_context:
+                context += f"\nQuestion {answer['question_number']
+                                         }: {answer['question_text']}"
+                context += f"\nYour answer: {answer['selected_answer']}"
+                context += f"\nCorrect answer: {answer['correct_answer']}"
+                context += f"\nStatus: {
+                    'Correct' if answer['is_correct'] else 'Incorrect'}\n"
+
+            # Get AI response
+            chat = OllamaChat()
+            try:
+                response = await chat.get_response(
+                    request.session[f'chat_messages_{quiz_id}'],
+                    context=context
+                )
+
+                # Add AI response to session
+                request.session[f'chat_messages_{quiz_id}'].append({
+                    'content': response,
+                    'is_user': False
+                })
+
+                request.session.modified = True
+
+            except Exception as e:
+                return JsonResponse({
+                    'error': f'Error getting AI response: {str(e)}'
+                }, status=500)
+
+            return HttpResponseRedirect(reverse('quiz_chat', kwargs={'quiz_id': quiz_id}))
+
+        # GET request handling
+        user_answers = await get_user_answers(request.user, quiz)
+        processed_answers = await process_answers(user_answers)
+
+        # Render template using sync_to_async
+        render_func = sync_to_async(render)
+        return await render_func(request, 'quizzes/quiz_chat.html', {
+            'quiz': quiz,
+            'user_answers': processed_answers,
+            'chat_messages': request.session.get(f'chat_messages_{quiz_id}', [])
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'error': f'Error processing request: {str(e)}'
+        }, status=500)
+
+
+@login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    # Get user's quiz statistics
+    user_stats = {}
+
+    # Get completed quizzes (where user has answered all questions)
+    completed_quizzes = Quiz.objects.annotate(
+        total_questions=Count('questions'),
+        answered_questions=Count(
+            'questions',
+            filter=Q(
+                questions__userquestionstatus__user=request.user
+            )
+        )
+    ).filter(
+        total_questions=F('answered_questions')
+    )
+
+    # Calculate total completed quizzes
+    user_stats['completed_quizzes'] = completed_quizzes.count()
+
+    # Calculate average score across all answered questions
+    user_answers = UserQuestionStatus.objects.filter(user=request.user)
+    if user_answers.exists():
+        correct_answers = user_answers.filter(
+            selected_answer=F('question__correct_answer')
+        ).count()
+        total_answers = user_answers.count()
+        user_stats['average_score'] = round(
+            (correct_answers / total_answers) * 100 if total_answers > 0 else 0
+        )
+    else:
+        user_stats['average_score'] = 0
+
+    # Count unique topics (based on quizzes attempted)
+    user_stats['topics_covered'] = Quiz.objects.filter(
+        questions__userquestionstatus__user=request.user
+    ).distinct().count()
+
+    # Get featured topics with user progress
+    featured_topics = [
+        {
+            'name': 'OSI Model',
+            'description': 'Understand the seven layers of the OSI model and their functions in network communication.',
+            'key_points': [
+                'Physical Layer',
+                'Data Link Layer',
+                'Network Layer',
+                'Transport Layer'
+            ],
+            'quiz_count': Quiz.objects.filter(name__icontains='OSI').count(),
+            'user_progress': _calculate_topic_progress(request.user, 'OSI')
+        },
+        {
+            'name': 'TCP/IP Protocol Suite',
+            'description': 'Master the fundamentals of TCP/IP and how it enables internet communication.',
+            'key_points': [
+                'IP Addressing',
+                'Routing Protocols',
+                'Transport Protocols',
+                'Application Protocols'
+            ],
+            'quiz_count': Quiz.objects.filter(name__icontains='TCP').count(),
+            'user_progress': _calculate_topic_progress(request.user, 'TCP')
+        },
+        {
+            'name': 'Network Security',
+            'description': 'Learn about essential network security concepts and best practices.',
+            'key_points': [
+                'Firewalls',
+                'Encryption',
+                'Authentication',
+                'Security Protocols'
+            ],
+            'quiz_count': Quiz.objects.filter(name__icontains='Security').count(),
+            'user_progress': _calculate_topic_progress(request.user, 'Security')
+        }
+    ]
+
+    # Get latest updates (new quizzes, content changes, etc.)
+    latest_updates = [
+        {
+            'title': 'New Quiz Added: Network Protocols',
+            'description': 'Test your knowledge of common networking protocols and their applications.',
+            'date': timezone.now() - timedelta(days=1)
+        },
+        {
+            'title': 'Updated Content: Cybersecurity Basics',
+            'description': 'New materials added on network security fundamentals and best practices.',
+            'date': timezone.now() - timedelta(days=3)
+        },
+        {
+            'title': 'AI Assistant Improvement',
+            'description': 'Enhanced capabilities for explaining complex networking concepts.',
+            'date': timezone.now() - timedelta(days=5)
+        }
+    ]
+
+    # Check if user needs to complete profile or take initial assessment
+    user_stats['show_welcome'] = not user_answers.exists()
+
+    context = {
+        'user_stats': user_stats,
+        'featured_topics': featured_topics,
+        'latest_updates': latest_updates
+    }
+
+    return render(request, 'dashboard.html', context)
+
+
+def _calculate_topic_progress(user, topic_keyword):
+    """Helper function to calculate user progress in a specific topic"""
+    topic_quizzes = Quiz.objects.filter(name__icontains=topic_keyword)
+    if not topic_quizzes.exists():
+        return 0
+
+    total_questions = Question.objects.filter(quiz__in=topic_quizzes).count()
+    if total_questions == 0:
+        return 0
+
+    answered_questions = UserQuestionStatus.objects.filter(
+        user=user,
+        question__quiz__in=topic_quizzes
+    ).count()
+
+    return round((answered_questions / total_questions) * 100)
 
 
 def assignments(request):
@@ -157,142 +392,6 @@ def solve_quiz(request, quiz_id):
         'question': next_question,
         'answers': answers
     })
-
-
-@login_required
-def quiz_chat(request, quiz_id):
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
-
-    # Get user's answers for this quiz
-    user_answers_query = UserQuestionStatus.objects.filter(
-        user=request.user,
-        question__quiz=quiz
-    ).select_related('question')
-
-    # Process answers for context
-    user_answers = []
-    for status in user_answers_query:
-        question = status.question
-        is_correct = status.selected_answer == question.correct_answer
-
-        answers = {
-            1: question.answer_1,
-            2: question.answer_2,
-            3: question.answer_3,
-            4: question.answer_4
-        }
-
-        user_answers.append({
-            'question_number': question.question_number,
-            'question_text': question.question_text,
-            'selected_answer': answers[status.selected_answer],
-            'correct_answer': answers[question.correct_answer],
-            'is_correct': is_correct
-        })
-
-    # Initialize or get chat messages from session
-    if f'chat_messages_{quiz_id}' not in request.session:
-        request.session[f'chat_messages_{quiz_id}'] = []
-
-    if request.method == 'POST':
-        user_message = request.POST.get('message')
-        if user_message:
-            # Add user message to chat
-            request.session[f'chat_messages_{quiz_id}'].append({
-                'content': user_message,
-                'is_user': True
-            })
-
-            # Generate context for GPT-2
-            context = "You are a helpful tutor. Explain the following quiz answers:\n\n"
-            for answer in user_answers:  # Using the processed user_answers list
-                context += f"Question {answer['question_number']
-                                       }: {answer['question_text']}\n"
-                context += f"Your answer: {answer['selected_answer']}\n"
-                context += f"Correct answer: {answer['correct_answer']}\n"
-                context += f"Status: {
-                    'Correct' if answer['is_correct'] else 'Incorrect'}\n\n"
-
-            context += f"Student question: {user_message}\n"
-            context += "Provide a clear, helpful explanation focusing on understanding the concepts:\n"
-
-            # Generate response using GPT-2
-            input_ids = tokenizer.encode(context, return_tensors='pt')
-            attention_mask = torch.ones(input_ids.shape, dtype=torch.long)
-
-            with torch.no_grad():
-                output = model.generate(
-                    input_ids,
-                    attention_mask=attention_mask,
-                    max_length=200,
-                    num_return_sequences=1,
-                    no_repeat_ngram_size=2,
-                    temperature=0.6,
-                    top_p=0.9,
-                    pad_token_id=tokenizer.eos_token_id
-                )
-
-            response = tokenizer.decode(output[0], skip_special_tokens=True)
-
-            # Post-process the response to ensure it's helpful
-            response = format_response(response)
-
-            # Add AI response to chat
-            request.session[f'chat_messages_{quiz_id}'].append({
-                'content': response,
-                'is_user': False
-            })
-
-            request.session.modified = True
-
-    return render(request, 'quizzes/quiz_chat.html', {
-        'quiz': quiz,
-        'user_answers': user_answers,
-        'chat_messages': request.session.get(f'chat_messages_{quiz_id}', [])
-    })
-
-
-def analyze_answer(question, user_answer, correct_answer):
-    """Analyze the difference between user's answer and correct answer."""
-    if question.isdigit() and user_answer.isdigit() and correct_answer.isdigit():
-        # For numerical answers
-        user_num = int(user_answer)
-        correct_num = int(correct_answer)
-        diff = abs(user_num - correct_num)
-        return f"The difference is {diff}. "
-    return ""
-
-
-def format_response(response):
-    """Clean and format the GPT-2 response to be more helpful."""
-    # Split response into sentences
-    sentences = response.split('.')
-
-    # Keep only relevant sentences (remove generic or off-topic ones)
-    relevant_sentences = [s for s in sentences if
-                          is_relevant_sentence(s) and
-                          len(s.strip()) > 10]
-
-    # Combine sentences and add structure
-    if relevant_sentences:
-        formatted_response = "Here's the explanation:\n\n"
-        formatted_response += ". ".join(relevant_sentences[:3]) + "."
-        return formatted_response
-
-    # Fallback response if no good explanation was generated
-    return "Let me help you understand this step by step:\n\n" + \
-           "1. First, carefully read the question\n" + \
-           "2. Break down the problem into smaller parts\n" + \
-           "3. Check your calculations again\n" + \
-           "Would you like me to explain any specific part in more detail?"
-
-
-def is_relevant_sentence(sentence):
-    """Check if a sentence is relevant to math explanation."""
-    relevant_keywords = ['number', 'add', 'subtract', 'equal', 'solution',
-                         'answer', 'calculation', 'result', 'step', 'problem',
-                         'correct', 'incorrect', 'difference', 'value']
-    return any(keyword in sentence.lower() for keyword in relevant_keywords)
 
 
 def login_view(request):
