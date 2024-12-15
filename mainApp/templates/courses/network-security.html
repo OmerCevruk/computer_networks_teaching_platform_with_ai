@@ -1,0 +1,131 @@
+{% extends "courses/base_course.html" %}
+
+{% block course_content %}
+<div class="space-y-8">
+    {# Introduction Section #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-link-color">Network Security Fundamentals</h1>
+        <p class="text-text-color mb-4">
+            Network security consists of policies, practices, and tools designed to prevent and monitor unauthorized access, misuse, modification, or denial of computer networks and network-accessible resources.
+        </p>
+    </section>
+
+    {# Core Concepts #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">1. CIA Triad</h2>
+        <div class="text-text-color space-y-3">
+            <p>The three main principles of information security:</p>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>Confidentiality:</strong> Ensuring data is accessible only to authorized parties</li>
+                <li><strong>Integrity:</strong> Maintaining data accuracy and trustworthiness</li>
+                <li><strong>Availability:</strong> Ensuring systems and data are accessible when needed</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Encryption and Cryptography #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">2. Encryption and Cryptography</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Symmetric Encryption</h3>
+            <p>Uses the same key for encryption and decryption (e.g., AES, DES)</p>
+            
+            <h3 class="text-lg font-medium mt-4">Asymmetric Encryption</h3>
+            <p>Uses public and private key pairs (e.g., RSA, ECC)</p>
+            
+            <h3 class="text-lg font-medium mt-4">Hash Functions</h3>
+            <p>One-way functions for data integrity (e.g., MD5, SHA)</p>
+        </div>
+    </section>
+
+    {# Network Defense Mechanisms #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">3. Network Defense Mechanisms</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Firewalls</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Packet filtering</li>
+                <li>Stateful inspection</li>
+                <li>Application layer firewalls</li>
+                <li>Next-generation firewalls (NGFW)</li>
+            </ul>
+
+            <h3 class="text-lg font-medium mt-4">Intrusion Detection/Prevention Systems</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Network-based IDS/IPS</li>
+                <li>Host-based IDS/IPS</li>
+                <li>Signature-based detection</li>
+                <li>Anomaly-based detection</li>
+            </ul>
+        </div>
+    </section>
+
+    {# VPN and Remote Access #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">4. VPN and Remote Access</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>Site-to-Site VPNs:</strong> Connecting multiple networks</li>
+                <li><strong>Remote Access VPNs:</strong> Individual user access</li>
+                <li><strong>SSL/TLS VPNs:</strong> Browser-based secure access</li>
+                <li><strong>IPsec VPNs:</strong> Protocol-level security</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Common Network Attacks #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">5. Common Network Attacks</h2>
+        <div class="text-text-color space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <h3 class="font-medium">Denial of Service (DoS)</h3>
+                    <p>Overwhelming systems to deny service to legitimate users</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-medium">Man-in-the-Middle</h3>
+                    <p>Intercepting communications between two parties</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-medium">SQL Injection</h3>
+                    <p>Exploiting database queries through malicious input</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-medium">Phishing</h3>
+                    <p>Social engineering to steal sensitive information</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Security Protocols and Standards #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">6. Security Protocols and Standards</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>SSL/TLS:</strong> Secure communication over networks</li>
+                <li><strong>HTTPS:</strong> Secure web browsing</li>
+                <li><strong>SSH:</strong> Secure remote access</li>
+                <li><strong>PGP:</strong> Email encryption</li>
+                <li><strong>OAuth:</strong> Secure authorization</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Best Practices #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">7. Security Best Practices</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Regular security audits and assessments</li>
+                <li>Strong password policies and multi-factor authentication</li>
+                <li>Regular software updates and patch management</li>
+                <li>Employee security training and awareness</li>
+                <li>Incident response planning</li>
+                <li>Data backup and recovery procedures</li>
+                <li>Network segmentation and access control</li>
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}

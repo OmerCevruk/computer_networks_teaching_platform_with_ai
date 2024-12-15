@@ -1,0 +1,116 @@
+{% extends "courses/base_course.html" %}
+
+{% block course_content %}
+<div class="space-y-8">
+    {# Introduction #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-link-color">Application Layer Protocols</h1>
+        <p class="text-text-color mb-4">
+            Application layer protocols define how applications communicate over a network, providing services directly to end-users and applications.
+        </p>
+    </section>
+
+    {# HTTP/HTTPS #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">1. HTTP and HTTPS</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">HTTP (Hypertext Transfer Protocol)</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Request/Response model</li>
+                <li>Methods (GET, POST, PUT, DELETE, etc.)</li>
+                <li>Status codes</li>
+                <li>Headers and body structure</li>
+            </ul>
+
+            <h3 class="text-lg font-medium mt-4">HTTPS (HTTP Secure)</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>SSL/TLS encryption</li>
+                <li>Certificate management</li>
+                <li>Security considerations</li>
+            </ul>
+        </div>
+    </section>
+
+    {# DNS #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">2. DNS (Domain Name System)</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Name resolution process</li>
+                <li>Record types (A, AAAA, MX, CNAME, etc.)</li>
+                <li>Hierarchical structure</li>
+                <li>DNS servers and caching</li>
+                <li>DNS security (DNSSEC)</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Email Protocols #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">3. Email Protocols</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">SMTP (Simple Mail Transfer Protocol)</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Mail server communication</li>
+                <li>Message format and headers</li>
+                <li>Email routing</li>
+            </ul>
+
+            <h3 class="text-lg font-medium mt-4">POP3 and IMAP</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Mail retrieval methods</li>
+                <li>Differences between POP3 and IMAP</li>
+                <li>Security features</li>
+            </ul>
+        </div>
+    </section>
+
+    {# FTP and SFTP #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">4. File Transfer Protocols</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">FTP (File Transfer Protocol)</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Control and data connections</li>
+                <li>Active vs. passive mode</li>
+                <li>Basic commands</li>
+            </ul>
+
+            <h3 class="text-lg font-medium mt-4">SFTP (SSH File Transfer Protocol)</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Secure file transfers</li>
+                <li>Authentication methods</li>
+                <li>Encryption features</li>
+            </ul>
+        </div>
+    </section>
+
+    {# DHCP #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">5. DHCP (Dynamic Host Configuration Protocol)</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>DORA process (Discover, Offer, Request, Acknowledge)</li>
+                <li>IP address allocation</li>
+                <li>Lease management</li>
+                <li>DHCP options</li>
+                <li>DHCP relay</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Other Application Protocols #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">6. Other Important Protocols</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>SNMP:</strong> Network management and monitoring</li>
+                <li><strong>SSH:</strong> Secure remote access</li>
+                <li><strong>NTP:</strong> Time synchronization</li>
+                <li><strong>LDAP:</strong> Directory services</li>
+                <li><strong>RDP:</strong> Remote desktop access</li>
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}

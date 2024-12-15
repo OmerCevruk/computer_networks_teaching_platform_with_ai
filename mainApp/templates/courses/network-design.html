@@ -1,0 +1,104 @@
+{% extends "courses/base_course.html" %}
+
+{% block course_content %}
+<div class="space-y-8">
+    {# Introduction #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-link-color">Network Design and Architecture</h1>
+        <p class="text-text-color mb-4">
+            Network design and architecture involves planning, implementing, and managing computer networks that meet organizational requirements for performance, reliability, and security.
+        </p>
+    </section>
+
+    {# Network Types and Topologies #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">1. Network Types and Topologies</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Network Types</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>LAN (Local Area Network):</strong> Networks within a limited area</li>
+                <li><strong>WAN (Wide Area Network):</strong> Networks spanning large geographical areas</li>
+                <li><strong>MAN (Metropolitan Area Network):</strong> Networks spanning a city</li>
+                <li><strong>SAN (Storage Area Network):</strong> Dedicated networks for storage</li>
+            </ul>
+
+            <h3 class="text-lg font-medium mt-4">Network Topologies</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>Bus:</strong> Single central cable</li>
+                <li><strong>Star:</strong> Central hub/switch connecting all nodes</li>
+                <li><strong>Ring:</strong> Nodes connected in a circular pattern</li>
+                <li><strong>Mesh:</strong> Nodes with multiple interconnections</li>
+                <li><strong>Hybrid:</strong> Combination of different topologies</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Hierarchical Network Design #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">2. Hierarchical Network Design</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Three-Layer Model</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>Core Layer:</strong> High-speed backbone</li>
+                <li><strong>Distribution Layer:</strong> Routing, filtering, and WAN access</li>
+                <li><strong>Access Layer:</strong> User and device connectivity</li>
+            </ul>
+        </div>
+    </section>
+
+    {# High Availability Design #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">3. High Availability Design</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Redundant hardware and links</li>
+                <li>Load balancing and failover</li>
+                <li>Backup power systems</li>
+                <li>Disaster recovery planning</li>
+                <li>Geographic redundancy</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Scalability and Growth #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">4. Scalability and Growth</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Modular design principles</li>
+                <li>Capacity planning</li>
+                <li>Future-proofing considerations</li>
+                <li>Expansion strategies</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Infrastructure Components #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">5. Infrastructure Components</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Routers and switches</li>
+                <li>Firewalls and security appliances</li>
+                <li>Load balancers</li>
+                <li>Wireless infrastructure</li>
+                <li>Network monitoring systems</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Design Considerations #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">6. Design Considerations</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Performance requirements</li>
+                <li>Security requirements</li>
+                <li>Cost constraints</li>
+                <li>Maintenance and support</li>
+                <li>Regulatory compliance</li>
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}

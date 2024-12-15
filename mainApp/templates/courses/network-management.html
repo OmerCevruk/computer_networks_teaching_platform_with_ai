@@ -1,0 +1,171 @@
+{% extends "courses/base_course.html" %}
+
+{% block course_content %}
+<div class="space-y-8">
+    {# Introduction Section #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-link-color">Network Management</h1>
+        <p class="text-text-color mb-4">
+            Network management involves monitoring, maintaining, and optimizing network infrastructure to ensure reliable performance, security, and efficiency of computer networks.
+        </p>
+    </section>
+
+    {# FCAPS Framework #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">1. FCAPS Framework</h2>
+        <div class="text-text-color space-y-3">
+            <p>The ISO network management model includes five key areas:</p>
+            <div class="grid grid-cols-1 gap-4 mt-4">
+                <div class="border border-text-color rounded-lg p-4">
+                    <h3 class="font-medium text-link-color">Fault Management</h3>
+                    <ul class="list-disc pl-6 mt-2">
+                        <li>Detecting and resolving network issues</li>
+                        <li>Logging and tracking problems</li>
+                        <li>Error notification systems</li>
+                        <li>Troubleshooting procedures</li>
+                    </ul>
+                </div>
+                <div class="border border-text-color rounded-lg p-4">
+                    <h3 class="font-medium text-link-color">Configuration Management</h3>
+                    <ul class="list-disc pl-6 mt-2">
+                        <li>Device configuration and updates</li>
+                        <li>Network topology management</li>
+                        <li>Software/firmware management</li>
+                        <li>Documentation and change control</li>
+                    </ul>
+                </div>
+                <div class="border border-text-color rounded-lg p-4">
+                    <h3 class="font-medium text-link-color">Accounting Management</h3>
+                    <ul class="list-disc pl-6 mt-2">
+                        <li>Resource usage tracking</li>
+                        <li>Cost allocation</li>
+                        <li>Billing and chargeback</li>
+                        <li>Usage quotas and policies</li>
+                    </ul>
+                </div>
+                <div class="border border-text-color rounded-lg p-4">
+                    <h3 class="font-medium text-link-color">Performance Management</h3>
+                    <ul class="list-disc pl-6 mt-2">
+                        <li>Network performance monitoring</li>
+                        <li>Capacity planning</li>
+                        <li>Performance optimization</li>
+                        <li>Service level management</li>
+                    </ul>
+                </div>
+                <div class="border border-text-color rounded-lg p-4">
+                    <h3 class="font-medium text-link-color">Security Management</h3>
+                    <ul class="list-disc pl-6 mt-2">
+                        <li>Access control</li>
+                        <li>Security policies and procedures</li>
+                        <li>Security monitoring and auditing</li>
+                        <li>Incident response</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Network Monitoring Tools #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">2. Network Monitoring Tools</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Common Monitoring Tools</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong>SNMP (Simple Network Management Protocol):</strong> Standard protocol for collecting and organizing information about managed devices</li>
+                <li><strong>Nagios:</strong> Monitoring system and network resources</li>
+                <li><strong>Wireshark:</strong> Network protocol analyzer</li>
+                <li><strong>Zabbix:</strong> Enterprise-class monitoring solution</li>
+                <li><strong>Cacti:</strong> Network graphing solution</li>
+            </ul>
+            
+            <h3 class="text-lg font-medium mt-4">Monitoring Metrics</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Bandwidth utilization</li>
+                <li>Network latency and response time</li>
+                <li>Packet loss and errors</li>
+                <li>System resource usage</li>
+                <li>Application performance</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Quality of Service (QoS) #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">3. Quality of Service (QoS)</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">QoS Parameters</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Bandwidth allocation</li>
+                <li>Delay and jitter control</li>
+                <li>Packet priority</li>
+                <li>Traffic shaping and policing</li>
+            </ul>
+
+            <h3 class="text-lg font-medium mt-4">Implementation Methods</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Classification and marking</li>
+                <li>Queuing mechanisms</li>
+                <li>Congestion management</li>
+                <li>Policy implementation</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Network Documentation #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">4. Network Documentation</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Essential Documentation</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Network topology diagrams</li>
+                <li>IP address allocation</li>
+                <li>Configuration standards</li>
+                <li>Security policies</li>
+                <li>Disaster recovery procedures</li>
+                <li>Change management records</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Troubleshooting #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">5. Network Troubleshooting</h2>
+        <div class="text-text-color space-y-3">
+            <h3 class="text-lg font-medium">Troubleshooting Methodology</h3>
+            <ol class="list-decimal pl-6 space-y-2">
+                <li>Problem identification</li>
+                <li>Information gathering</li>
+                <li>Analysis</li>
+                <li>Solution implementation</li>
+                <li>Testing and verification</li>
+                <li>Documentation</li>
+            </ol>
+
+            <h3 class="text-lg font-medium mt-4">Common Tools</h3>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>ping and traceroute</li>
+                <li>nslookup and dig</li>
+                <li>netstat and tcpdump</li>
+                <li>System logs</li>
+            </ul>
+        </div>
+    </section>
+
+    {# Best Practices #}
+    <section class="bg-header-bg-color rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-link-color">6. Network Management Best Practices</h2>
+        <div class="text-text-color space-y-3">
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Regular network audits and assessments</li>
+                <li>Proactive monitoring and maintenance</li>
+                <li>Change management procedures</li>
+                <li>Backup and disaster recovery planning</li>
+                <li>Documentation maintenance</li>
+                <li>Staff training and skill development</li>
+                <li>Regular security reviews</li>
+                <li>Performance optimization</li>
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}
